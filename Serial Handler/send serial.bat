@@ -1,40 +1,16 @@
 
-@echo arg[0] = Portnummer , arg[1] = Baudrate , arg[2] = Stream der gesendet werden soll
+@echo arg[0] = Portnummer , arg[1] = Baudrate , arg[2] = Stream der gesendet werden soll , arg[3] = Soll "\r\n" mit gesendet werden?
+
+SET cnt=0
+
 
 :while
 
-"%~dp0\main.exe" 6 9600 "-K1"
+SET /A cnt=cnt+1
+"%~dp0\main.exe" 6 9600 "-K" OFF
+"%~dp0\main.exe" 6 9600 %cnt%+'0' ON
 
-
-"%~dp0\main.exe" 6 9600 "-K2"
-
-
-"%~dp0\main.exe" 6 9600 "-K3"
-
-
-"%~dp0\main.exe" 6 9600 "-K4"
-
-
-"%~dp0\main.exe" 6 9600 "-K5"
-
-
-"%~dp0\main.exe" 6 9600 "-K6"
-
-
-"%~dp0\main.exe" 6 9600 "-K7"
-
-
-"%~dp0\main.exe" 6 9600 "-K8"
-
-
-"%~dp0\main.exe" 6 9600 "-K9"
-
-
-"%~dp0\main.exe" 6 9600 "-K10"
-
-
-"%~dp0\main.exe" 6 9600 "-K11"
-
+timeout /t 1
 
 goto while
 

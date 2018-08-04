@@ -33,7 +33,7 @@ HANDLE serialInit( HANDLE hSerial , char *portName , char *baud )
     	return NULL;
 	}
      
-    dcbSerialParams.BaudRate = 9600;
+    dcbSerialParams.BaudRate = baudrate;
     dcbSerialParams.ByteSize = 8;
     dcbSerialParams.StopBits = ONESTOPBIT;
     dcbSerialParams.Parity 	 = NOPARITY;
@@ -59,11 +59,11 @@ HANDLE serialInit( HANDLE hSerial , char *portName , char *baud )
     return hSerial;
 }
 
-HANDLE serialWrite( HANDLE hSerial , char *stream )
+HANDLE serialWrite( HANDLE hSerial , unsigned char *stream )
 {
     DWORD bytes_written, total_bytes_written = 0;
     fprintf(stderr, "Sending bytes...\r\n");
-       
+           
     if( !WriteFile(hSerial, stream , strlen( stream ) , &bytes_written , NULL ) )
     {
         CloseHandle(hSerial);
@@ -111,7 +111,8 @@ void showHeader( void )
 *	arg:		Anzahl der Argumente
 *	argv[0]: 	Portnummer
 *	argv[1]:	Baudrate
-*	argv[2]:	Stream der gesendet werden soo
+*	argv[2]:	Stream der gesendet werden soll
+*	argv[3]:	Soll "\r\n" mit gesendet werden? ( ON , OFF )
 */
 int main( int arg , char *argv[] )
 {
@@ -127,10 +128,20 @@ int main( int arg , char *argv[] )
 	
 	char buff[30];
 	strcpy( buff , argv[3] );
-	strcat( buff , "\r\n" );
+	
+	if( strcmp( argv[4] , "ON" ) == 0 )
+	{
+		strcat( buff , "\r\n" );	
+	}
+	else if( strcmp( argv[4] , "OFF" ) == 0 )
+	{
+		printf( "\\r\\n wurde nicht mitgesendet!\r\n" );
+	}
 	
 	serialWrite( hSerial , buff );
+		
 	
+		
 	serialClose( hSerial );
 
 
