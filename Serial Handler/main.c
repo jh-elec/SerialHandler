@@ -59,8 +59,10 @@ HANDLE serialInit( HANDLE hSerial , char *portName , char *baud )
     return hSerial;
 }
 
-HANDLE serialWrite( HANDLE hSerial , unsigned char *stream )
+HANDLE serialWrite( HANDLE hSerial , char *stream )
 {
+	char *streamPtr = stream;
+	
     DWORD bytes_written, total_bytes_written = 0;
     fprintf(stderr, "Sending bytes...\r\n");
            
@@ -69,7 +71,9 @@ HANDLE serialWrite( HANDLE hSerial , unsigned char *stream )
         CloseHandle(hSerial);
         return "Konnte den Port nicht oeffnen\r\n";
     }   
+    printf( "SerialPort: %s\r\n" , streamPtr );
     fprintf(stderr, "%d bytes written\r\n", bytes_written);
+    
 }
  
 char *serialClose( HANDLE hSerial ) 
