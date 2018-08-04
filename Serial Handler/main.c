@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include <stdint.h>
  
-char *serialInit( HANDLE hSerial , char *portName , char *baud )
+HANDLE serialInit( HANDLE hSerial , char *portName , char *baud )
 {
 	// Declare variables and structures
     DCB dcbSerialParams = {0};
     COMMTIMEOUTS timeouts = {0};	
 	
-	char pName[15] = "\\\\.\\COM";
+	char pName[20] = "\\\\.\\COM";
+
 	strcat( pName , portName );
-          
-    hSerial = CreateFile( pName , GENERIC_READ | GENERIC_WRITE , 0 , NULL , OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL );
+	 
+    hSerial = CreateFile( pName, GENERIC_READ | GENERIC_WRITE , 0 , NULL , OPEN_EXISTING , FILE_ATTRIBUTE_NORMAL , NULL );
     
 	if ( hSerial == INVALID_HANDLE_VALUE )
     {
@@ -32,10 +33,10 @@ char *serialInit( HANDLE hSerial , char *portName , char *baud )
     	return NULL;
 	}
      
-    dcbSerialParams.BaudRate = CBR_38400;
+    dcbSerialParams.BaudRate = 9600;
     dcbSerialParams.ByteSize = 8;
     dcbSerialParams.StopBits = ONESTOPBIT;
-    dcbSerialParams.Parity = NOPARITY;
+    dcbSerialParams.Parity 	 = NOPARITY;
     if(SetCommState(hSerial, &dcbSerialParams) == 0)
     {
         CloseHandle(hSerial);
@@ -54,13 +55,15 @@ char *serialInit( HANDLE hSerial , char *portName , char *baud )
     	CloseHandle(hSerial);
         return NULL;
     }
+    
+    return hSerial;
 }
 
-char *serialWrite( HANDLE hSerial , char *stream )
+HANDLE serialWrite( HANDLE hSerial , char *stream )
 {
     DWORD bytes_written, total_bytes_written = 0;
     fprintf(stderr, "Sending bytes...\r\n");
-    
+       
     if( !WriteFile(hSerial, stream , strlen( stream ) , &bytes_written , NULL ) )
     {
         CloseHandle(hSerial);
@@ -112,35 +115,24 @@ void showHeader( void )
 */
 int main( int arg , char *argv[] )
 {
-
     HANDLE hSerial;	
 	
 	showHeader();
 	
 	printf( "\r\n" );
-	printf( "SerialPort : COM%s\r\n" , argv[1] );
-	printf( "SerialPort : %s Baud\r\n" , argv[2] );
+	printf( "SerialPort: COM%s\r\n"   , argv[1] );
+	printf( "SerialPort: %sBaud\r\n"  , argv[2] );
 
-	char *handlePtr = serialInit( hSerial , argv[1] , argv[2] );
-
-	if ( handlePtr == NULL )
-	{
-		printf( "SerialPort : Konnte nicht initalisiert werden..\r\n\n" );
-		printf( "***Serial Port Handling by Hm***\r\n");
-		exit(0);
-	}
-
-	printf("\r\n");
-	printf( "/*********************************\r\n" );
-	printf( "SerialPort    : " );
-	serialWrite( hSerial , argv[3] );
-	printf( "Gesendet      : %s\r\n" , argv[3] );
-	printf( "SerialPort    : %s\r\n" , serialClose( hSerial ) );
-	printf( "/*********************************\r\n" );
+	hSerial = serialInit( hSerial , argv[1] , argv[2] );
 	
-	printf("\r\n");	
+	char buff[30];
+	strcpy( buff , argv[3] );
+	strcat( buff , "\r\n" );
 	
-	system( "pause" );
+	serialWrite( hSerial , buff );
+	
+	serialClose( hSerial );
+
 
     return 0;
 }
